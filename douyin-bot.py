@@ -2,7 +2,8 @@
 import sys
 import random
 import time
-from PIL import Image
+import os
+
 
 
 if sys.version_info.major != 3:
@@ -24,7 +25,7 @@ VERSION = "0.0.1"
 # 我申请的 Key，随便用，嘻嘻嘻
 # 申请地址 http://ai.qq.com
 AppID = '1106858595'
-AppKey = 'bNUNgOpY6AeeJjFu'
+AppKey = '5ihqtj5yQY7mhUOT'
 
 DEBUG_SWITCH = True
 FACE_PATH = 'face/'
@@ -152,11 +153,45 @@ def main():
             print(rsp)
             continue
 
+def main0():
+    print('程序版本号：{}'.format(VERSION))
+    print('激活窗口并按 CONTROL + C 组合键退出')
 
+    for p in os.listdir('.' % FACE_PATH):
+        if os.path.isdir(p):  # 判断是否为文件夹，如果是输出所有文件就改成： os.path.isfile(p)
+            print(p)
+            with open(p, 'rb') as bin_data:
+                image_data = bin_data.read()
+
+            ai_obj = apiutil.AiPlat(AppID, AppKey)
+            rsp = ai_obj.face_detectface(image_data, 0)
+
+            if rsp['ret'] == 0:
+                beauty = 0
+                for face in rsp['data']['face_list']:
+                    print(face)
+                    face_area = (face['x'], face['y'], face['x'] + face['width'], face['y'] + face['height'])
+                    print(face_area)
+                    img =Image.open("optimized.png")
+                    cropped_img = img.crop(face_area).convert('RGB')
+                    cropped_img.save(FACE_PATH + face['face_id'] + '.png')
+                    # 性别判断
+                    if face['beauty'] > beauty and face['gender'] < 50:
+                        beauty = face['beauty']
+
+                # 是个美人儿~关注点赞走一波
+                if beauty > BEAUTY_THRESHOLD:
+                    print('发现漂亮妹子！！！')
+                    thumbs_up()
+                    follow_user()
+
+            else:
+                print(rsp)
+                continue
 if __name__ == '__main__':
     try:
         # yes_or_no()
-        main()
+        main0()
     except KeyboardInterrupt:
         adb.run('kill-server')
         print('\n谢谢使用', end='')

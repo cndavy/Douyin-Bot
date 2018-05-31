@@ -1,4 +1,4 @@
-from PIL import Image
+#from PIL import Image
 
 im = Image.open("../autojump.png")
 w, h = im.size

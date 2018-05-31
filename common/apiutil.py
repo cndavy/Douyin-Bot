@@ -39,7 +39,7 @@ class AiPlat(object):
         try:
             rsp = urllib.request.urlopen(req)
             str_rsp = rsp.read()
-            dict_rsp = json.loads(str_rsp)
+            dict_rsp = json.loads(bytes.decode(str_rsp) )
             return dict_rsp
         except Exception as e:
             print(e)
